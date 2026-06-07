@@ -1,0 +1,18 @@
+{
+  "name": "@ai-gcm/sdk",
+  "version": "1.0.0",
+  "description": "Official AI-GCM SDK — drop-in replacement for Anthropic and OpenAI SDKs",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "test": "vitest run",
+    "lint": "eslint src/"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

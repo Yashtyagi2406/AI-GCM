@@ -1,0 +1,2 @@
+# Symlink — actual file lives in infrastructure/docker/
+# Run: docker compose -f infrastructure/docker/docker-compose.yml up

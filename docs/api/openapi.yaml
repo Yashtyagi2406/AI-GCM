@@ -1,0 +1,141 @@
+openapi: 3.1.0
+info:
+  title: AI Governance & Cost Management Platform API
+  version: 1.0.0
+  description: REST API for AI-GCM — cost tracking, governance, and compliance for enterprise AI usage.
+  contact:
+    name: AI-GCM Support
+    email: support@ai-gcm.io
+
+servers:
+  - url: https://api.ai-gcm.io/api/v1
+    description: Production
+  - url: http://localhost:3001/api/v1
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate and get JWT token
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, org_slug]
+              properties:
+                email:    { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                org_slug: { type: string }
+                mfa_code: { type: string, description: Required if MFA enabled }
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:  { type: string }
+                  refresh_token: { type: string }
+                  expires_in:    { type: integer }
+                  user:
+                    type: object
+                    properties:
+                      id:          { type: string, format: uuid }
+                      email:       { type: string }
+                      name:        { type: string }
+                      role:        { type: string }
+                      permissions: { type: array, items: { type: string } }
+        '401': { description: Invalid credentials }
+        '422': { description: MFA required or invalid }
+
+  /budgets:
+    get:
+      summary: List all budgets for the organization
+      tags: [Budgets]
+      responses:
+        '200':
+          description: List of budgets with current spend
+    post:
+      summary: Create a new budget
+      tags: [Budgets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBudget'
+      responses:
+        '201': { description: Budget created }
+
+  /analytics/cost:
+    get:
+      summary: Get cost analytics with flexible grouping
+      tags: [Analytics]
+      parameters:
+        - name: start
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: end
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: group_by
+          in: query
+          schema:
+            type: string
+            enum: [user, team, department, provider, model, project]
+        - name: provider
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Cost breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  period:    { type: object }
+                  total_cost_usd: { type: number }
+                  breakdown: { type: array }
+                  forecast:  { type: object }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    CreateBudget:
+      type: object
+      required: [name, scope_type, scope_id, amount_usd, period]
+      properties:
+        name:      { type: string, maxLength: 255 }
+        scope_type:
+          type: string
+          enum: [org, department, team, project, user]
+        scope_id:  { type: string, format: uuid }
+        amount_usd:
+          type: number
+          minimum: 0.01
+        period:
+          type: string
+          enum: [daily, weekly, monthly, quarterly, annual]
+        alert_thresholds:
+          type: array
+          items: { type: integer, minimum: 1, maximum: 100 }
+          default: [50, 75, 90, 100]
+        hard_limit:
+          type: boolean
+          default: false
