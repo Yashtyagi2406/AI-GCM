@@ -76,8 +76,10 @@ services:
       PORT: 3001
       DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
       REDIS_URL: redis://redis:6379
-      JWT_SECRET: dev-jwt-secret-change-in-prod
-    depends_on: [postgres, redis]
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-prod}
+      KEY_VAULT_URL: http://key-vault:3003
+    depends_on: [postgres, redis, key-vault]
+
 
   # ── Cost Engine (Go)
   cost-engine:
@@ -121,6 +123,32 @@ services:
       DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
     depends_on: [kafka, postgres]
+
+  # ── Auth Service (TypeScript / Fastify)
+  auth-service:
+    build:
+      context: ../../services/auth-service
+      dockerfile: Dockerfile
+    ports: ["3002:3002"]
+    environment:
+      PORT: 3002
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-prod}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-in-prod}
+    depends_on: [postgres, redis]
+
+  # ── Key Vault (Go)
+  key-vault:
+    build:
+      context: ../../services/key-vault
+      dockerfile: Dockerfile
+    ports: ["3003:3003"]
+    environment:
+      PORT: 3003
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      VAULT_MASTER_KEY: ${VAULT_MASTER_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+    depends_on: [postgres]
 
   # ── Web Dashboard (Next.js)
   web:
