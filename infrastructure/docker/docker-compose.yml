@@ -61,7 +61,7 @@ services:
     ports: ["8080:8080"]
     environment:
       PORT: 8080
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       REDIS_URL: redis://redis:6379
       KAFKA_BROKERS: kafka:9092
     depends_on: [postgres, redis, kafka]
@@ -74,7 +74,7 @@ services:
     ports: ["3001:3001"]
     environment:
       PORT: 3001
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-prod}
       KEY_VAULT_URL: http://key-vault:3003
@@ -87,7 +87,7 @@ services:
       context: ../../services/cost-engine
       dockerfile: Dockerfile
     environment:
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       KAFKA_BROKERS: kafka:9092
       REDIS_URL: redis://redis:6379
     depends_on: [postgres, kafka, redis]
@@ -99,7 +99,7 @@ services:
       dockerfile: Dockerfile
     ports: ["8000:8000"]
     environment:
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       CLICKHOUSE_URL: http://clickhouse:8123
     depends_on: [postgres, clickhouse]
 
@@ -110,7 +110,7 @@ services:
       dockerfile: Dockerfile
     environment:
       KAFKA_BROKERS: kafka:9092
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
       ML_SERVICE_URL: http://ml-service:8000
     depends_on: [kafka, postgres, ml-service]
@@ -123,7 +123,7 @@ services:
     ports: ["3002:3002"]
     environment:
       PORT: 3002
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-prod}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-in-prod}
@@ -137,7 +137,7 @@ services:
     ports: ["3003:3003"]
     environment:
       PORT: 3003
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       VAULT_MASTER_KEY: ${VAULT_MASTER_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
     depends_on: [postgres]
 
@@ -170,7 +170,7 @@ services:
     ports: ["3004:3004"]
     environment:
       PORT: 3004
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       KAFKA_BROKERS: kafka:9092
       AUDIT_SIGNING_KEY: ${AUDIT_SIGNING_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
     depends_on: [postgres, kafka]
@@ -183,7 +183,7 @@ services:
     ports: ["3005:3005"]
     environment:
       PORT: 3005
-      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       REPORTS_DIR: /data/reports
     volumes:
       - report_data:/data/reports
