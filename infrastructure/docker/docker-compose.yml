@@ -92,16 +92,6 @@ services:
       REDIS_URL: redis://redis:6379
     depends_on: [postgres, kafka, redis]
 
-  # ── Analytics Processor (Go)
-  analytics-processor:
-    build:
-      context: ../../services/analytics-processor
-      dockerfile: Dockerfile
-    environment:
-      KAFKA_BROKERS: kafka:9092
-      CLICKHOUSE_URL: http://clickhouse:8123
-    depends_on: [kafka, clickhouse]
-
   # ── ML Service (Python)
   ml-service:
     build:
