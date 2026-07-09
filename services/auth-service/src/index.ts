@@ -2,7 +2,7 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import rateLimit from '@fastify/rate-limit'
 import { Pool } from 'pg'
-import Redis from 'ioredis'
+import { Redis } from 'ioredis'
 import { z } from 'zod'
 
 import { RegisterSchema, LoginSchema, registerUser, validateCredentials } from './providers/email.js'
