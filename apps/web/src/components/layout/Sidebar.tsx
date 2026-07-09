@@ -52,7 +52,7 @@ export default function Sidebar() {
         {nav.map(({ label, href, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
           return (
-            <Link key={href} href={href}
+            <Link key={href} href={href as any}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group
                 ${active
                   ? 'bg-violet-500/15 text-violet-300 border border-violet-500/20'
