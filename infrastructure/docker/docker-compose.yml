@@ -122,7 +122,8 @@ services:
       KAFKA_BROKERS: kafka:9092
       DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
-    depends_on: [kafka, postgres]
+      ML_SERVICE_URL: http://ml-service:8000
+    depends_on: [kafka, postgres, ml-service]
 
   # ── Auth Service (TypeScript / Fastify)
   auth-service:
@@ -161,6 +162,45 @@ services:
       NEXT_PUBLIC_PROXY_URL: http://localhost:8080
     depends_on: [api-gateway]
 
+  # ── Analytics Processor (Go) — Phase 2
+  analytics-processor:
+    build:
+      context: ../../services/analytics-processor
+      dockerfile: Dockerfile
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      CLICKHOUSE_URL: clickhouse://clickhouse:9000?database=default
+    depends_on: [kafka, clickhouse]
+
+  # ── Audit Service (Go) — Phase 2
+  audit-service:
+    build:
+      context: ../../services/audit-service
+      dockerfile: Dockerfile
+    ports: ["3004:3004"]
+    environment:
+      PORT: 3004
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      KAFKA_BROKERS: kafka:9092
+      AUDIT_SIGNING_KEY: ${AUDIT_SIGNING_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+    depends_on: [postgres, kafka]
+
+  # ── Report Service (TypeScript / Fastify) — Phase 2
+  report-service:
+    build:
+      context: ../../services/report-service
+      dockerfile: Dockerfile
+    ports: ["3005:3005"]
+    environment:
+      PORT: 3005
+      DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm
+      REPORTS_DIR: /data/reports
+    volumes:
+      - report_data:/data/reports
+    depends_on: [postgres]
+
 volumes:
   postgres_data:
   clickhouse_data:
+  report_data:
+

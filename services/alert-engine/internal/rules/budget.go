@@ -15,7 +15,9 @@ const (
 	TypeDLPViolation    = "dlp_violation"
 	TypeVelocitySpike   = "velocity_spike"
 	TypePolicyBlock     = "policy_block"
+	TypeAnomalyDetected = "anomaly_detected"  // Phase 2 — ML anomaly
 )
+
 
 // BudgetAlertRule defines when to fire a budget alert.
 // SRS §12.2 Month 2: "Simple budget: per-org monthly limit with email alert at 90%."

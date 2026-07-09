@@ -62,7 +62,12 @@ func main() {
 	}
 
 	// ── Evaluator ─────────────────────────────────────────────────────────────
+	mlServiceURL := getEnv("ML_SERVICE_URL", "")
 	eval := evaluator.New(db, sender, kafkaBrokers)
+	if mlServiceURL != "" {
+		eval.WithMLService(mlServiceURL)
+		log.Printf("[alert-engine] ML service wired: %s", mlServiceURL)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

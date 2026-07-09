@@ -1,0 +1,214 @@
+name: Deploy — Staging
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type 'deploy' to confirm staging deployment"
+        required: true
+
+jobs:
+  # Only run if workflow_dispatch is confirmed OR it's an automatic push
+  check-gate:
+    name: Deploy Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check confirmation
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && \
+                "${{ github.event.inputs.confirm }}" != "deploy" ]]; then
+            echo "Manual dispatch requires confirmation — type 'deploy' in the confirm field"
+            exit 1
+          fi
+          echo "Gate passed ✅"
+
+  # ── Build & Push all Docker images to ECR ────────────────────────────────────
+  build-push:
+    name: Build & Push — ${{ matrix.service.tag }}
+    runs-on: ubuntu-latest
+    needs: check-gate
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        service:
+          - { path: services/proxy,               tag: ai-gcm/proxy }
+          - { path: services/cost-engine,         tag: ai-gcm/cost-engine }
+          - { path: services/alert-engine,        tag: ai-gcm/alert-engine }
+          - { path: services/key-vault,           tag: ai-gcm/key-vault }
+          - { path: services/api-gateway,         tag: ai-gcm/api-gateway }
+          - { path: services/auth-service,        tag: ai-gcm/auth-service }
+          - { path: services/analytics-processor, tag: ai-gcm/analytics-processor }
+          - { path: services/audit-service,       tag: ai-gcm/audit-service }
+          - { path: services/report-service,      tag: ai-gcm/report-service }
+          - { path: apps/web,                     tag: ai-gcm/web }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_STAGING_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            -t $ECR_REGISTRY/${{ matrix.service.tag }}:$IMAGE_TAG \
+            -t $ECR_REGISTRY/${{ matrix.service.tag }}:staging-latest \
+            ${{ matrix.service.path }}
+          docker push $ECR_REGISTRY/${{ matrix.service.tag }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ matrix.service.tag }}:staging-latest
+
+  # ── Run DB migrations ─────────────────────────────────────────────────────────
+  migrate:
+    name: Run DB Migrations
+    runs-on: ubuntu-latest
+    needs: build-push
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_STAGING_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.29.0'
+
+      - name: Configure kubeconfig for staging
+        run: |
+          aws eks update-kubeconfig \
+            --region us-east-1 \
+            --name ${{ secrets.EKS_STAGING_CLUSTER }}
+
+      - name: Run Flyway migrations
+        run: |
+          kubectl run migrate-job \
+            --image=flyway/flyway:10 \
+            --restart=Never \
+            --env="FLYWAY_URL=${{ secrets.STAGING_DB_URL }}" \
+            --env="FLYWAY_LOCATIONS=filesystem:/migrations" \
+            --overrides='{"spec":{"volumes":[{"name":"migrations","configMap":{"name":"db-migrations"}}],"containers":[{"name":"migrate-job","volumeMounts":[{"name":"migrations","mountPath":"/migrations"}]}]}}' \
+            -n ai-gcm
+          kubectl wait --for=condition=complete pod/migrate-job -n ai-gcm --timeout=120s
+          kubectl delete pod/migrate-job -n ai-gcm
+
+  # ── Deploy to EKS staging ─────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to EKS Staging
+    runs-on: ubuntu-latest
+    needs: migrate
+    permissions:
+      id-token: write
+      contents: read
+    environment:
+      name: staging
+      url: https://staging.ai-gcm.dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_STAGING_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.29.0'
+
+      - name: Configure kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --region us-east-1 \
+            --name ${{ secrets.EKS_STAGING_CLUSTER }}
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Update image tags in overlays
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Update kustomize image tags for staging overlay
+          cd infrastructure/k8s/overlays/staging
+          kustomize edit set image \
+            ai-gcm/proxy=$ECR_REGISTRY/ai-gcm/proxy:$IMAGE_TAG \
+            ai-gcm/cost-engine=$ECR_REGISTRY/ai-gcm/cost-engine:$IMAGE_TAG \
+            ai-gcm/alert-engine=$ECR_REGISTRY/ai-gcm/alert-engine:$IMAGE_TAG \
+            ai-gcm/key-vault=$ECR_REGISTRY/ai-gcm/key-vault:$IMAGE_TAG \
+            ai-gcm/api-gateway=$ECR_REGISTRY/ai-gcm/api-gateway:$IMAGE_TAG \
+            ai-gcm/auth-service=$ECR_REGISTRY/ai-gcm/auth-service:$IMAGE_TAG \
+            ai-gcm/analytics-processor=$ECR_REGISTRY/ai-gcm/analytics-processor:$IMAGE_TAG \
+            ai-gcm/audit-service=$ECR_REGISTRY/ai-gcm/audit-service:$IMAGE_TAG \
+            ai-gcm/report-service=$ECR_REGISTRY/ai-gcm/report-service:$IMAGE_TAG \
+            ai-gcm/web=$ECR_REGISTRY/ai-gcm/web:$IMAGE_TAG
+
+      - name: Apply kustomize overlay
+        run: |
+          kubectl apply -k infrastructure/k8s/overlays/staging
+          echo "Deployment applied ✅"
+
+      - name: Wait for rollout
+        run: |
+          services=(proxy api-gateway auth-service key-vault cost-engine alert-engine analytics-processor audit-service report-service)
+          for svc in "${services[@]}"; do
+            echo "Waiting for $svc..."
+            kubectl rollout status deployment/$svc -n ai-gcm --timeout=300s
+          done
+
+      - name: Smoke test
+        run: |
+          # Wait for LB to stabilise
+          sleep 10
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://staging.ai-gcm.dev/health" || echo "000")
+          if [[ "$STATUS" != "200" ]]; then
+            echo "Smoke test failed — /health returned $STATUS"
+            exit 1
+          fi
+          echo "Smoke test passed ✅ (HTTP $STATUS)"
+
+  # ── Notify Slack ──────────────────────────────────────────────────────────────
+  notify:
+    name: Notify Slack
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always()
+    steps:
+      - name: Slack notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEPLOY_WEBHOOK }}
+        run: |
+          STATUS="${{ needs.deploy.result }}"
+          EMOJI=$([ "$STATUS" == "success" ] && echo ":rocket:" || echo ":x:")
+          COLOUR=$([ "$STATUS" == "success" ] && echo "good" || echo "danger")
+          curl -s -X POST "$SLACK_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"attachments\": [{
+                \"color\": \"$COLOUR\",
+                \"text\": \"$EMOJI *AI-GCM Staging Deploy — $(echo $STATUS | tr a-z A-Z)*\\nCommit: \`${{ github.sha }}\`\\nBranch: \`${{ github.ref_name }}\`\\nActor: ${{ github.actor }}\"
+              }]
+            }"

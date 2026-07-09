@@ -3,11 +3,13 @@
 package evaluator
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/IBM/sarama"
@@ -34,14 +36,28 @@ type AlertEvent struct {
 
 // Evaluator consumes Kafka alert-events and fires notifications.
 type Evaluator struct {
-	db      *sql.DB
-	sender  *notifier.EmailSender
-	brokers []string
+	db           *sql.DB
+	sender       *notifier.EmailSender
+	brokers      []string
+	mlServiceURL string       // Phase 2 — e.g. "http://ml-service:8000"
+	httpClient   *http.Client
 }
 
 // New creates an Evaluator.
 func New(db *sql.DB, sender *notifier.EmailSender, brokers []string) *Evaluator {
-	return &Evaluator{db: db, sender: sender, brokers: brokers}
+	return &Evaluator{
+		db:           db,
+		sender:       sender,
+		brokers:      brokers,
+		mlServiceURL: "",
+		httpClient:   &http.Client{Timeout: 3 * time.Second},
+	}
+}
+
+// WithMLService configures the ML service endpoint for anomaly scoring.
+func (e *Evaluator) WithMLService(url string) *Evaluator {
+	e.mlServiceURL = url
+	return e
 }
 
 // Run starts the Kafka consumer loop. Blocks until ctx is cancelled.
@@ -78,13 +94,19 @@ func (e *Evaluator) processEvent(event AlertEvent) {
 		e.handleBudgetAlert(event)
 	case rules.TypeDLPViolation:
 		log.Printf("[evaluator] DLP violation — org=%s user=%s msg=%s", event.OrgID, event.UserID, event.Message)
-		// Phase 2: send Slack notification
 	case rules.TypeVelocitySpike:
 		log.Printf("[evaluator] velocity spike — org=%s team=%s msg=%s", event.OrgID, event.TeamID, event.Message)
 	case rules.TypePolicyBlock:
 		log.Printf("[evaluator] policy block — org=%s user=%s msg=%s", event.OrgID, event.UserID, event.Message)
+	case rules.TypeAnomalyDetected:
+		log.Printf("[evaluator] ML anomaly — org=%s severity=%s msg=%s", event.OrgID, event.Severity, event.Message)
 	default:
 		log.Printf("[evaluator] unhandled event type: %s", event.Type)
+	}
+
+	// Phase 2: ML anomaly check for usage events (budget_threshold + velocity events)
+	if e.mlServiceURL != "" {
+		e.checkAndEmitAnomaly(event)
 	}
 
 	// Persist alert to DB for dashboard display
@@ -146,6 +168,88 @@ func nullStr(s string) interface{} {
 		return nil
 	}
 	return s
+}
+
+// ── ML anomaly check ──────────────────────────────────────────────────────────
+
+type mlAnomalyRequest struct {
+	OrgID        string  `json:"org_id"`
+	HourOfDay    int     `json:"hour_of_day"`
+	DayOfWeek    int     `json:"day_of_week"`
+	RequestCount int     `json:"request_count"`
+	TotalTokens  int     `json:"total_tokens"`
+	TotalCostUSD float64 `json:"total_cost_usd"`
+	UniqueModels int     `json:"unique_models"`
+}
+
+type mlAnomalyResponse struct {
+	IsAnomaly    bool    `json:"is_anomaly"`
+	AnomalyScore float64 `json:"anomaly_score"`
+	AnomalyType  string  `json:"anomaly_type"`
+	Severity     string  `json:"severity"`
+}
+
+// checkAndEmitAnomaly calls the ML service and, if an anomaly is detected with
+// severity >= high, emits an anomaly_detected alert event to Kafka.
+func (e *Evaluator) checkAndEmitAnomaly(event AlertEvent) {
+	hour := time.Now().UTC().Hour()
+	dow := int(time.Now().UTC().Weekday())
+
+	// Extract cost metadata if present (budget_threshold events carry this)
+	costUSD, _ := event.Metadata["spent_usd"].(float64)
+
+	req := mlAnomalyRequest{
+		OrgID:        event.OrgID,
+		HourOfDay:    hour,
+		DayOfWeek:    dow,
+		RequestCount: 1,
+		TotalTokens:  0,
+		TotalCostUSD: costUSD,
+		UniqueModels: 1,
+	}
+
+	body, _ := json.Marshal(req)
+	resp, err := e.httpClient.Post(
+		e.mlServiceURL+"/anomaly",
+		"application/json",
+		bytes.NewReader(body),
+	)
+	if err != nil {
+		log.Printf("[evaluator] ML service unreachable: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return
+	}
+
+	var result mlAnomalyResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return
+	}
+
+	if !result.IsAnomaly {
+		return
+	}
+	// Only escalate high/critical anomalies to avoid alert fatigue
+	if result.Severity != "high" && result.Severity != "critical" {
+		return
+	}
+
+	anomalyEvent := AlertEvent{
+		Type:      rules.TypeAnomalyDetected,
+		OrgID:     event.OrgID,
+		TeamID:    event.TeamID,
+		UserID:    event.UserID,
+		Severity:  result.Severity,
+		Message:   fmt.Sprintf("ML anomaly detected: %s (score=%.3f)", result.AnomalyType, result.AnomalyScore),
+		Metadata:  map[string]interface{}{"anomaly_type": result.AnomalyType, "score": result.AnomalyScore},
+		Timestamp: time.Now().UTC(),
+	}
+	e.persistAlert(anomalyEvent)
+	log.Printf("[evaluator] anomaly_detected persisted — org=%s type=%s severity=%s",
+		event.OrgID, result.AnomalyType, result.Severity)
 }
 
 // ── Sarama consumer group handler ─────────────────────────────────────────────

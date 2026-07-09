@@ -98,4 +98,19 @@ export async function auditRoutes(app: FastifyInstance) {
     if (!result.rows[0]) return reply.status(404).send({ error: 'Request not found' })
     return reply.send(result.rows[0])
   })
+
+  // GET /audit/verify — proxy hash-chain integrity verification request to audit-service
+  app.get('/audit/verify', async (req, reply) => {
+    const { orgId } = req.user
+    const query = req.query as Record<string, string>
+    const url = new URL(`${app.auditServiceUrl}/audit/verify`)
+    url.searchParams.set('org_id', orgId)
+    if (query.start) url.searchParams.set('start', query.start)
+    if (query.end) url.searchParams.set('end', query.end)
+
+    const res = await fetch(url.toString())
+    const data = await res.json()
+    return reply.status(res.status).send(data)
+  })
 }
+

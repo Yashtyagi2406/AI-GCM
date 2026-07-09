@@ -1,0 +1,511 @@
+# ── Analytics Processor Deployment ───────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-processor
+  namespace: ai-gcm
+  labels:
+    app: analytics-processor
+    component: data
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: analytics-processor }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels: { app: analytics-processor }
+    spec:
+      containers:
+        - name: analytics-processor
+          image: AI_GCM_ECR/ai-gcm/analytics-processor:latest
+          env:
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-gcm-config
+                  key: kafka-brokers
+            - name: CLICKHOUSE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: clickhouse-url
+          resources:
+            requests: { cpu: 200m, memory: 256Mi }
+            limits:   { cpu: "1",  memory: 512Mi }
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "exit 0"]
+            initialDelaySeconds: 10
+            periodSeconds: 30
+---
+# ── Audit Service Deployment ──────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-service
+  namespace: ai-gcm
+  labels:
+    app: audit-service
+    component: compliance
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: audit-service }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels: { app: audit-service }
+      annotations:
+        prometheus.io/scrape: "false"
+    spec:
+      containers:
+        - name: audit-service
+          image: AI_GCM_ECR/ai-gcm/audit-service:latest
+          ports:
+            - containerPort: 3004
+              name: http
+          env:
+            - name: PORT
+              value: "3004"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: database-url
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-gcm-config
+                  key: kafka-brokers
+            - name: AUDIT_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: audit-signing-key
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits:   { cpu: 500m, memory: 256Mi }
+          livenessProbe:
+            httpGet: { path: /health, port: 3004 }
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /health, port: 3004 }
+            initialDelaySeconds: 3
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-service
+  namespace: ai-gcm
+spec:
+  selector: { app: audit-service }
+  ports:
+    - port: 3004
+      targetPort: 3004
+      name: http
+---
+# ── Report Service Deployment ─────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: report-service
+  namespace: ai-gcm
+  labels:
+    app: report-service
+    component: reporting
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: report-service }
+  strategy:
+    type: Recreate   # only 1 replica for report generation (file writes)
+  template:
+    metadata:
+      labels: { app: report-service }
+    spec:
+      containers:
+        - name: report-service
+          image: AI_GCM_ECR/ai-gcm/report-service:latest
+          ports:
+            - containerPort: 3005
+              name: http
+          env:
+            - name: PORT
+              value: "3005"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: database-url
+            - name: REPORTS_DIR
+              value: /data/reports
+          volumeMounts:
+            - name: report-storage
+              mountPath: /data/reports
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits:   { cpu: "1",  memory: 512Mi }
+          livenessProbe:
+            httpGet: { path: /health, port: 3005 }
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /health, port: 3005 }
+            initialDelaySeconds: 3
+            periodSeconds: 10
+      volumes:
+        - name: report-storage
+          persistentVolumeClaim:
+            claimName: report-storage-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: report-service
+  namespace: ai-gcm
+spec:
+  selector: { app: report-service }
+  ports:
+    - port: 3005
+      targetPort: 3005
+      name: http
+---
+# ── Report Storage PVC ────────────────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: report-storage-pvc
+  namespace: ai-gcm
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 20Gi
+---
+# ── ML Service Deployment ─────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-service
+  namespace: ai-gcm
+  labels:
+    app: ml-service
+    component: ml
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: ml-service }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 1 }
+  template:
+    metadata:
+      labels: { app: ml-service }
+    spec:
+      containers:
+        - name: ml-service
+          image: AI_GCM_ECR/ai-gcm/ml-service:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: CLICKHOUSE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: clickhouse-url
+            - name: ML_RETRAIN_INTERVAL_SECONDS
+              value: "21600"  # 6 hours
+          resources:
+            requests: { cpu: 500m, memory: 1Gi }
+            limits:   { cpu: "2",  memory: 2Gi }
+          livenessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 8000 }
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-service
+  namespace: ai-gcm
+spec:
+  selector: { app: ml-service }
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+---
+# ── Cost Engine Deployment ────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cost-engine
+  namespace: ai-gcm
+  labels:
+    app: cost-engine
+    component: core
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: cost-engine }
+  template:
+    metadata:
+      labels: { app: cost-engine }
+    spec:
+      containers:
+        - name: cost-engine
+          image: AI_GCM_ECR/ai-gcm/cost-engine:latest
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: database-url
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-gcm-config
+                  key: kafka-brokers
+          resources:
+            requests: { cpu: 200m, memory: 256Mi }
+            limits:   { cpu: "1",  memory: 512Mi }
+---
+# ── Alert Engine Deployment ───────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alert-engine
+  namespace: ai-gcm
+  labels:
+    app: alert-engine
+    component: core
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: alert-engine }
+  template:
+    metadata:
+      labels: { app: alert-engine }
+    spec:
+      containers:
+        - name: alert-engine
+          image: AI_GCM_ECR/ai-gcm/alert-engine:latest
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: database-url
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-gcm-config
+                  key: kafka-brokers
+            - name: ML_SERVICE_URL
+              value: "http://ml-service.ai-gcm.svc.cluster.local:8000"
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: smtp-host
+                  optional: true
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits:   { cpu: 500m, memory: 256Mi }
+---
+# ── Auth Service Deployment ───────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: ai-gcm
+  labels:
+    app: auth-service
+    component: auth
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: auth-service }
+  template:
+    metadata:
+      labels: { app: auth-service }
+    spec:
+      containers:
+        - name: auth-service
+          image: AI_GCM_ECR/ai-gcm/auth-service:latest
+          ports:
+            - containerPort: 3002
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: database-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: jwt-secret
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits:   { cpu: 500m, memory: 256Mi }
+          livenessProbe:
+            httpGet: { path: /health, port: 3002 }
+            initialDelaySeconds: 5
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: ai-gcm
+spec:
+  selector: { app: auth-service }
+  ports:
+    - port: 3002
+      targetPort: 3002
+---
+# ── Key Vault Deployment ──────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: key-vault
+  namespace: ai-gcm
+  labels:
+    app: key-vault
+    component: security
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: key-vault }
+  template:
+    metadata:
+      labels: { app: key-vault }
+    spec:
+      containers:
+        - name: key-vault
+          image: AI_GCM_ECR/ai-gcm/key-vault:latest
+          ports:
+            - containerPort: 3003
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: database-url
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits:   { cpu: 500m, memory: 256Mi }
+          livenessProbe:
+            httpGet: { path: /health, port: 3003 }
+            initialDelaySeconds: 5
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: key-vault
+  namespace: ai-gcm
+spec:
+  selector: { app: key-vault }
+  ports:
+    - port: 3003
+      targetPort: 3003
+---
+# ── API Gateway Deployment ────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: ai-gcm
+  labels:
+    app: api-gateway
+    component: gateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: api-gateway }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels: { app: api-gateway }
+    spec:
+      containers:
+        - name: api-gateway
+          image: AI_GCM_ECR/ai-gcm/api-gateway:latest
+          ports:
+            - containerPort: 3001
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: database-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ai-gcm-secrets
+                  key: jwt-secret
+            - name: AUDIT_SERVICE_URL
+              value: "http://audit-service.ai-gcm.svc.cluster.local:3004"
+            - name: REPORT_SERVICE_URL
+              value: "http://report-service.ai-gcm.svc.cluster.local:3005"
+          resources:
+            requests: { cpu: 200m, memory: 256Mi }
+            limits:   { cpu: "1",  memory: 512Mi }
+          livenessProbe:
+            httpGet: { path: /health, port: 3001 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /ready, port: 3001 }
+            initialDelaySeconds: 3
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: ai-gcm
+spec:
+  selector: { app: api-gateway }
+  ports:
+    - port: 3001
+      targetPort: 3001
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-gateway-hpa
+  namespace: ai-gcm
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-gateway
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 65 }

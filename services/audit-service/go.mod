@@ -1,4 +1,4 @@
-module github.com/ai-gcm/alert-engine
+module github.com/ai-gcm/audit-service
 
 go 1.22
 
