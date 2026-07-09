@@ -133,8 +133,8 @@ export default function AuditPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1.5">
-                      {row.dlp && <ShieldAlert size={12} className="text-red-400" title="DLP violation" />}
-                      {row.policy === 'block' && !row.dlp && <XCircle size={12} className="text-red-400" title="Policy blocked" />}
+                      {row.dlp && <span title="DLP violation"><ShieldAlert size={12} className="text-red-400" /></span>}
+                      {row.policy === 'block' && !row.dlp && <span title="Policy blocked"><XCircle size={12} className="text-red-400" /></span>}
                       {row.policy === 'allow' && <CheckCircle size={12} className="text-emerald-400 opacity-30" />}
                     </div>
                   </td>
