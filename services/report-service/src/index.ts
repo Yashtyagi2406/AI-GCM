@@ -13,9 +13,9 @@ import { Pool } from 'pg';
 import { createWriteStream, createReadStream, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { z } from 'zod';
-import { renderPDF, ReportData } from './renderer/pdf';
-import { streamCSV } from './renderer/csv';
-import { startMonthlyScheduler } from './scheduler/cron';
+import { renderPDF, ReportData } from './renderer/pdf.js';
+import { streamCSV } from './renderer/csv.js';
+import { startMonthlyScheduler } from './scheduler/cron.js';
 
 // ── Config ────────────────────────────────────────────────────────────────────
 

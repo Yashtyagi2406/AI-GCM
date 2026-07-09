@@ -6,7 +6,7 @@
 import cron from 'node-cron';
 import { Pool } from 'pg';
 import { subMonths, startOfMonth, endOfMonth, format } from 'date-fns';
-import { generateReport } from '../index';
+import { generateReport } from '../index.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
