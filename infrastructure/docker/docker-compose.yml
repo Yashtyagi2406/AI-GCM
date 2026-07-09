@@ -47,6 +47,9 @@ services:
   clickhouse:
     image: clickhouse/clickhouse-server:24.3
     ports: ["8123:8123", "9000:9000"]
+    environment:
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: password
     volumes:
       - clickhouse_data:/var/lib/clickhouse
       - ../../database/clickhouse/schemas:/docker-entrypoint-initdb.d
@@ -100,7 +103,7 @@ services:
     ports: ["8000:8000"]
     environment:
       DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
-      CLICKHOUSE_URL: http://clickhouse:8123
+      CLICKHOUSE_URL: http://default:password@clickhouse:8123
     depends_on: [postgres, clickhouse]
 
   # ── Alert Engine (Go)
@@ -159,7 +162,7 @@ services:
       dockerfile: Dockerfile
     environment:
       KAFKA_BROKERS: kafka:9092
-      CLICKHOUSE_URL: clickhouse://clickhouse:9000?database=default
+      CLICKHOUSE_URL: clickhouse://default:password@clickhouse:9000?database=default
     depends_on: [kafka, clickhouse]
 
   # ── Audit Service (Go) — Phase 2

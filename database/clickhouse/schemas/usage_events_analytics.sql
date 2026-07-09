@@ -24,12 +24,13 @@ ENGINE = MergeTree()
 PARTITION BY toYYYYMM(event_date)
 ORDER BY (org_id, event_date, team_id, provider, model)
 TTL event_date + INTERVAL 2 YEAR DELETE
-SETTINGS index_granularity = 8192;
+SETTINGS index_granularity = 8192, allow_nullable_key = 1;
 
 -- Pre-aggregated daily summary for instant dashboard queries
 CREATE MATERIALIZED VIEW IF NOT EXISTS daily_cost_summary
 ENGINE = SummingMergeTree()
 ORDER BY (org_id, event_date, team_id, provider, model)
+SETTINGS allow_nullable_key = 1
 AS SELECT
     toDate(created_at)                  AS event_date,
     org_id, team_id, provider, model,
@@ -62,7 +63,8 @@ CREATE TABLE IF NOT EXISTS usage_hourly_agg (
 ENGINE = ReplacingMergeTree()
 PARTITION BY toYYYYMM(event_hour)
 ORDER BY (org_id, event_hour, team_id)
-TTL event_hour + INTERVAL 1 YEAR DELETE;
+TTL event_hour + INTERVAL 1 YEAR DELETE
+SETTINGS allow_nullable_key = 1;
 
 -- Materialized view that auto-populates usage_hourly_agg
 CREATE MATERIALIZED VIEW IF NOT EXISTS hourly_agg_mv

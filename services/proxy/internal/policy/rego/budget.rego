@@ -1,6 +1,7 @@
 package aigcm.budget
 
 import future.keywords.if
+import future.keywords.in
 
 # Evaluate which alert thresholds have been newly crossed
 crossed_thresholds[threshold] if {
