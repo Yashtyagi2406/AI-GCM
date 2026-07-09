@@ -34,10 +34,10 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,INTERNAL://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,INTERNAL://kafka:9094
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -66,7 +66,7 @@ services:
       PORT: 8080
       DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       REDIS_URL: redis://redis:6379
-      KAFKA_BROKERS: kafka:9092
+      KAFKA_BROKERS: kafka:9094
     depends_on: [postgres, redis, kafka]
 
   # ── API Gateway (TypeScript)
@@ -91,7 +91,7 @@ services:
       dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
-      KAFKA_BROKERS: kafka:9092
+      KAFKA_BROKERS: kafka:9094
       REDIS_URL: redis://redis:6379
     depends_on: [postgres, kafka, redis]
 
@@ -112,7 +112,7 @@ services:
       context: ../../services/alert-engine
       dockerfile: Dockerfile
     environment:
-      KAFKA_BROKERS: kafka:9092
+      KAFKA_BROKERS: kafka:9094
       DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
       ML_SERVICE_URL: http://ml-service:8000
@@ -161,8 +161,8 @@ services:
       context: ../../services/analytics-processor
       dockerfile: Dockerfile
     environment:
-      KAFKA_BROKERS: kafka:9092
-      CLICKHOUSE_URL: clickhouse://default:password@clickhouse:9000?database=default
+      KAFKA_BROKERS: kafka:9094
+      CLICKHOUSE_URL: clickhouse://default:password@clickhouse:9000/default
     depends_on: [kafka, clickhouse]
 
   # ── Audit Service (Go) — Phase 2
@@ -174,7 +174,7 @@ services:
     environment:
       PORT: 3004
       DATABASE_URL: postgresql://aigcm:password@postgres:5432/aigcm?sslmode=disable
-      KAFKA_BROKERS: kafka:9092
+      KAFKA_BROKERS: kafka:9094
       AUDIT_SIGNING_KEY: ${AUDIT_SIGNING_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
     depends_on: [postgres, kafka]
 
