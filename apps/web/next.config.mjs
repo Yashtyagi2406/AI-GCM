@@ -5,6 +5,10 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: '/api/auth/:path*',
+        destination: `${process.env.AUTH_SERVICE_URL || 'http://localhost:3002'}/auth/:path*`,
+      },
+      {
         source: '/api/proxy/:path*',
         destination: `${process.env.PROXY_URL || 'http://localhost:8080'}/:path*`,
       },
