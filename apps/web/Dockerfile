@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate && pnpm install --no-frozen-lockfile
 COPY . .
-RUN pnpm build
+RUN mkdir -p public && pnpm build
 
 FROM node:20-alpine
 WORKDIR /app
