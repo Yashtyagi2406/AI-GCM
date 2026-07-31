@@ -118,9 +118,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    environment:
-      name: staging
-      url: https://staging.ai-gcm.dev
+    environment: staging
     steps:
       - uses: actions/checkout@v4
 
