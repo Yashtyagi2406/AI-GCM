@@ -55,10 +55,12 @@ func main() {
 	// ── Kafka Publisher ──────────────────────────────────────────────────────
 	publisher, err := events.NewPublisher(kafkaBrokers)
 	if err != nil {
-		log.Fatalf("[proxy] failed to create Kafka publisher: %v", err)
+		log.Printf("[proxy] WARNING: Kafka unavailable (%v) — usage events will be dropped until Kafka is ready", err)
+		publisher = nil
+	} else {
+		defer publisher.Close()
+		log.Printf("[proxy] Kafka publisher ready (brokers: %v)", kafkaBrokers)
 	}
-	defer publisher.Close()
-	log.Printf("[proxy] Kafka publisher ready (brokers: %v)", kafkaBrokers)
 
 	// ── Redis + Semantic Cache ───────────────────────────────────────────────
 	redisOpts, err := redis.ParseURL(redisURL)
