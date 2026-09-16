@@ -14,13 +14,24 @@ jobs:
   check-gate:
     name: Deploy Gate
     runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.gate.outputs.configured }}
     steps:
-      - name: Check confirmation
+      - name: Check confirmation and credentials
+        id: gate
+        env:
+          AWS_ROLE: ${{ secrets.AWS_STAGING_ROLE_ARN }}
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && \
                 "${{ github.event.inputs.confirm }}" != "deploy" ]]; then
             echo "Manual dispatch requires confirmation — type 'deploy' in the confirm field"
             exit 1
+          fi
+          if [[ -z "$AWS_ROLE" ]]; then
+            echo "::notice title=Staging Deployment Skipped::AWS_STAGING_ROLE_ARN is not configured in repository secrets. Skipping build and push to ECR."
+            echo "configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
           fi
           echo "Gate passed ✅"
 
@@ -29,6 +40,7 @@ jobs:
     name: Build & Push — ${{ matrix.service.tag }}
     runs-on: ubuntu-latest
     needs: check-gate
+    if: needs.check-gate.outputs.configured == 'true'
     permissions:
       id-token: write
       contents: read
@@ -74,7 +86,8 @@ jobs:
   migrate:
     name: Run DB Migrations
     runs-on: ubuntu-latest
-    needs: build-push
+    needs: [check-gate, build-push]
+    if: needs.check-gate.outputs.configured == 'true'
     permissions:
       id-token: write
       contents: read
@@ -114,7 +127,8 @@ jobs:
   deploy:
     name: Deploy to EKS Staging
     runs-on: ubuntu-latest
-    needs: migrate
+    needs: [check-gate, migrate]
+    if: needs.check-gate.outputs.configured == 'true'
     permissions:
       id-token: write
       contents: read
@@ -191,8 +205,8 @@ jobs:
   notify:
     name: Notify Slack
     runs-on: ubuntu-latest
-    needs: [deploy]
-    if: always()
+    needs: [check-gate, deploy]
+    if: always() && needs.check-gate.outputs.configured == 'true'
     steps:
       - name: Slack notification
         if: env.SLACK_WEBHOOK_URL != ''
