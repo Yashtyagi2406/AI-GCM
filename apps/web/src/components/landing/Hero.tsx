@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { Lightfall } from './Lightfall'
 import { ScrollReveal } from './ScrollReveal'
+import { SpecularButton } from './SpecularButton'
 
 export function Hero() {
   const [copied, setCopied] = useState(false)
@@ -76,22 +77,53 @@ export function Hero() {
           </p>
 
           {/* CTAs */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto">
-            <Link
+          <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <SpecularButton
               href="/overview"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm shadow-xl shadow-violet-600/30 hover:shadow-violet-600/40 active:scale-95 transition-all"
+              size="md"
+              radius={14}
+              tint="#7c3aed"
+              tintOpacity={0.85}
+              blur={8}
+              textColor="#ffffff"
+              lineColor="#c084fc"
+              baseColor="#4c1d95"
+              intensity={1.2}
+              shineSize={14}
+              shineFade={42}
+              thickness={1.5}
+              speed={0.35}
+              followMouse
+              proximity={260}
+              autoAnimate
+              className="w-full sm:w-auto font-semibold shadow-xl shadow-violet-600/30"
             >
               <span>Start Building</span>
               <ArrowRight size={16} />
-            </Link>
+            </SpecularButton>
 
-            <a
+            <SpecularButton
               href="#architecture"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-white/15 bg-slate-900/80 backdrop-blur-md hover:bg-slate-800/80 hover:border-white/25 text-slate-200 font-medium text-sm transition-all shadow-lg"
+              size="md"
+              radius={14}
+              tint="#0f172a"
+              tintOpacity={0.8}
+              blur={8}
+              textColor="#e2e8f0"
+              lineColor="#38bdf8"
+              baseColor="#1e293b"
+              intensity={1.0}
+              shineSize={12}
+              shineFade={40}
+              thickness={1.2}
+              speed={0.35}
+              followMouse
+              proximity={220}
+              className="w-full sm:w-auto font-medium shadow-lg"
             >
               <span>Explore the Architecture</span>
               <ChevronRight size={16} className="text-slate-400" />
-            </a>
+            </SpecularButton>
           </div>
 
           {/* Credibility Line */}

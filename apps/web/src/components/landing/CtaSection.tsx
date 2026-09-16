@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Github, Terminal } from 'lucide-react'
+import { SpecularButton } from './SpecularButton'
 
 export function CtaSection() {
   return (
@@ -31,23 +32,52 @@ export function CtaSection() {
 
         {/* Action Buttons */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
+          <SpecularButton
             href="/overview"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm shadow-2xl shadow-violet-600/30 hover:shadow-violet-600/50 active:scale-95 transition-all"
+            size="lg"
+            radius={16}
+            tint="#7c3aed"
+            tintOpacity={0.9}
+            blur={10}
+            textColor="#ffffff"
+            lineColor="#e9d5ff"
+            baseColor="#581c87"
+            intensity={1.3}
+            shineSize={16}
+            shineFade={45}
+            thickness={1.5}
+            speed={0.4}
+            followMouse
+            proximity={280}
+            autoAnimate
+            className="w-full sm:w-auto font-bold shadow-2xl shadow-violet-600/40"
           >
             <span>Get Started</span>
             <ArrowRight size={16} />
-          </Link>
+          </SpecularButton>
 
-          <a
+          <SpecularButton
             href="https://github.com/yashtyagi2406/AI-GCM"
-            target="_blank"
-            rel="noreferrer"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/25 text-slate-200 font-semibold text-sm transition-all"
+            size="lg"
+            radius={16}
+            tint="#0f172a"
+            tintOpacity={0.8}
+            blur={10}
+            textColor="#e2e8f0"
+            lineColor="#94a3b8"
+            baseColor="#1e293b"
+            intensity={1.0}
+            shineSize={14}
+            shineFade={40}
+            thickness={1.2}
+            speed={0.35}
+            followMouse
+            proximity={250}
+            className="w-full sm:w-auto font-semibold shadow-lg"
           >
             <Github size={16} />
             <span>View GitHub</span>
-          </a>
+          </SpecularButton>
         </div>
 
         {/* Quick bash instruction */}
