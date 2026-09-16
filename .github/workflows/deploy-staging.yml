@@ -132,7 +132,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    environment: staging
+    environment:
+      name: staging
     steps:
       - uses: actions/checkout@v4
 
