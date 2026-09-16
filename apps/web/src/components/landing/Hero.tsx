@@ -6,6 +6,7 @@ import {
   ArrowRight, ShieldCheck, Zap, Lock, Cpu, Database, 
   Activity, CheckCircle2, ChevronRight, Terminal, Copy, Check 
 } from 'lucide-react'
+import { Lightfall } from './Lightfall'
 
 export function Hero() {
   const [copied, setCopied] = useState(false)
@@ -19,6 +20,29 @@ export function Hero() {
 
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-grid-pattern">
+      {/* Interactive Lightfall WebGL Canvas */}
+      <div className="absolute top-0 left-0 right-0 h-[700px] pointer-events-auto overflow-hidden z-0">
+        <Lightfall
+          colors={['#38bdf8', '#818cf8', '#c084fc', '#60a5fa']}
+          backgroundColor="#030712"
+          speed={0.8}
+          streakCount={6}
+          streakWidth={1.2}
+          streakLength={1.2}
+          glow={1.2}
+          density={0.8}
+          twinkle={0.85}
+          zoom={2.2}
+          backgroundGlow={0.6}
+          opacity={0.9}
+          mouseInteraction={true}
+          mouseStrength={0.8}
+          mouseRadius={0.7}
+        />
+        {/* Soft bottom vignette to fade smoothly into the hero architecture diagram */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#030712] pointer-events-none" />
+      </div>
+
       {/* Subtle radial ambient gradients */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-violet-600/10 blur-[130px] pointer-events-none rounded-full" />
       <div className="absolute top-1/3 right-10 w-[400px] h-[350px] bg-sky-500/10 blur-[110px] pointer-events-none rounded-full" />
