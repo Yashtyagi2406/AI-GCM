@@ -17,7 +17,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (mounted && (!token || !user)) {
-      router.push('/login')
+      router.replace('/login')
     }
   }, [mounted, token, user, router])
 
