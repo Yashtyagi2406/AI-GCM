@@ -31,7 +31,7 @@ export function DashboardPreview() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/overview"
+              href="/login"
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/25 transition-all"
             >
               <span>Explore Live Dashboard</span>

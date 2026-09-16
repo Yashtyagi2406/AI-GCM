@@ -33,7 +33,7 @@ export function CtaSection() {
         {/* Action Buttons */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <SpecularButton
-            href="/overview"
+            href="/login"
             size="lg"
             radius={16}
             tint="#7c3aed"
