@@ -7,6 +7,7 @@ import {
   Activity, CheckCircle2, ChevronRight, Terminal, Copy, Check 
 } from 'lucide-react'
 import { Lightfall } from './Lightfall'
+import { ScrollReveal } from './ScrollReveal'
 
 export function Hero() {
   const [copied, setCopied] = useState(false)
@@ -21,26 +22,30 @@ export function Hero() {
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-grid-pattern">
       {/* Interactive Lightfall WebGL Canvas */}
-      <div className="absolute top-0 left-0 right-0 h-[700px] pointer-events-auto overflow-hidden z-0">
+      <div className="absolute top-0 left-0 right-0 h-[720px] pointer-events-auto overflow-hidden z-0">
         <Lightfall
           colors={['#38bdf8', '#818cf8', '#c084fc', '#60a5fa']}
           backgroundColor="#030712"
-          speed={0.8}
-          streakCount={6}
-          streakWidth={1.2}
-          streakLength={1.2}
-          glow={1.2}
-          density={0.8}
-          twinkle={0.85}
-          zoom={2.2}
-          backgroundGlow={0.6}
-          opacity={0.9}
+          speed={0.65}
+          streakCount={4}
+          streakWidth={1.1}
+          streakLength={1.1}
+          glow={0.85}
+          density={0.55}
+          twinkle={0.7}
+          zoom={2.4}
+          backgroundGlow={0.35}
+          opacity={0.68}
           mouseInteraction={true}
           mouseStrength={0.8}
           mouseRadius={0.7}
         />
+        {/* Top protection scrim for navbar clarity */}
+        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#030712] via-[#030712]/75 to-transparent pointer-events-none z-[1]" />
+        {/* Center radial scrim so hero text has pristine contrast */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(3,7,18,0.78)_0%,_rgba(3,7,18,0.45)_55%,_transparent_100%)] pointer-events-none z-[1]" />
         {/* Soft bottom vignette to fade smoothly into the hero architecture diagram */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#030712] pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#030712] via-[#030712]/75 to-transparent pointer-events-none z-[1]" />
       </div>
 
       {/* Subtle radial ambient gradients */}
@@ -51,7 +56,7 @@ export function Hero() {
         
         {/* Top Eyebrow & Badges */}
         <div className="flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-500/25 bg-violet-500/10 backdrop-blur-md mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-violet-500/35 bg-[#030712]/85 backdrop-blur-md mb-6 shadow-lg shadow-violet-950/40 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <span className="flex h-2 w-2 rounded-full bg-violet-400 animate-pulse" />
             <span className="text-[11px] font-mono font-semibold tracking-wider text-violet-300 uppercase">
               AI GOVERNANCE & COST CONTROL
@@ -61,13 +66,13 @@ export function Hero() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl leading-[1.08]">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl leading-[1.08] drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
             The control plane for <span className="gradient-accent">production AI.</span>
           </h1>
 
           {/* Supporting Copy */}
-          <p className="mt-6 text-base sm:text-lg lg:text-xl text-slate-300 max-w-3xl leading-relaxed font-normal">
-            AI-GCM sits between your applications and AI providers to govern usage, control costs, prevent data leaks, and audit every AI request — <span className="text-white font-medium">with zero client-code changes.</span>
+          <p className="mt-6 text-base sm:text-lg lg:text-xl text-slate-200 max-w-3xl leading-relaxed font-normal drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+            AI-GCM sits between your applications and AI providers to govern usage, control costs, prevent data leaks, and audit every AI request — <span className="text-white font-semibold">with zero client-code changes.</span>
           </p>
 
           {/* CTAs */}
@@ -82,7 +87,7 @@ export function Hero() {
 
             <a
               href="#architecture"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 text-slate-200 font-medium text-sm transition-all"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-white/15 bg-slate-900/80 backdrop-blur-md hover:bg-slate-800/80 hover:border-white/25 text-slate-200 font-medium text-sm transition-all shadow-lg"
             >
               <span>Explore the Architecture</span>
               <ChevronRight size={16} className="text-slate-400" />
@@ -90,22 +95,22 @@ export function Hero() {
           </div>
 
           {/* Credibility Line */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-400 font-mono">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-300 font-mono bg-[#030712]/70 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-sm shadow-md">
             <span>Zero code changes</span>
             <span className="text-slate-600">·</span>
             <span>Multi-provider</span>
             <span className="text-slate-600">·</span>
-            <span className="text-emerald-400 font-medium">Production-ready</span>
+            <span className="text-emerald-400 font-semibold">Production-ready</span>
           </div>
 
           {/* Supported Providers List */}
-          <div className="mt-4 text-[11px] text-slate-400 font-mono tracking-wide">
+          <div className="mt-4 text-[11px] text-slate-300 font-mono tracking-wide drop-shadow-sm">
             OpenAI · Anthropic · Gemini · Azure OpenAI · AWS Bedrock · Local LLMs
           </div>
         </div>
 
         {/* ── HERO VISUAL (Sophisticated Request-Path Architecture) ─────── */}
-        <div className="mt-16 relative">
+        <ScrollReveal delay={150} direction="up" className="mt-16 relative">
           
           {/* Outer Frame with Infrastructure Styling */}
           <div className="rounded-2xl border border-white/10 bg-slate-950/80 backdrop-blur-xl p-5 sm:p-8 shadow-2xl shadow-black/80 relative overflow-hidden">
@@ -345,7 +350,7 @@ export function Hero() {
               </div>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
 
       </div>
     </section>

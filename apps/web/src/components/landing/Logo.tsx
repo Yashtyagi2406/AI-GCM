@@ -49,14 +49,14 @@ export function Logo({ size = 28, showText = true, className = '' }: { size?: nu
       {showText && (
         <div className="flex flex-col leading-none">
           <div className="flex items-center gap-1.5">
-            <span className="font-extrabold tracking-tight text-white font-mono text-base">
+            <span className="font-extrabold tracking-tight text-white font-mono text-base drop-shadow-sm">
               AI<span className="text-violet-400">-</span>GCM
             </span>
-            <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/10 text-slate-400 font-mono">
+            <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/30 text-violet-300 font-mono font-semibold">
               v1.0
             </span>
           </div>
-          <span className="text-[10px] text-slate-500 font-medium tracking-wide">
+          <span className="text-[10px] text-slate-300 font-medium tracking-wide">
             Control Plane for Production AI
           </span>
         </div>

@@ -21,8 +21,8 @@ export function Navbar() {
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled 
-          ? 'bg-[#030712]/85 backdrop-blur-md border-b border-white/[0.08] shadow-2xl shadow-black/40' 
-          : 'bg-transparent border-b border-white/[0.04]'
+          ? 'bg-[#030712]/95 backdrop-blur-2xl border-b border-white/[0.14] shadow-2xl shadow-black/60' 
+          : 'bg-[#030712]/85 backdrop-blur-xl border-b border-white/[0.08] shadow-lg shadow-black/30'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -32,7 +32,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-7 text-xs font-medium text-slate-400">
+        <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-200">
           <a href="#differentiator" className="hover:text-white transition-colors">
             Overview
           </a>
@@ -42,7 +42,7 @@ export function Navbar() {
           <a href="#architecture" className="hover:text-white transition-colors">
             Architecture
           </a>
-          <a href="#hot-path" className="hover:text-white transition-colors flex items-center gap-1">
+          <a href="#hot-path" className="hover:text-white transition-colors flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Hot Path
           </a>

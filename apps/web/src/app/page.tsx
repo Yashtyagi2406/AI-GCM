@@ -14,6 +14,7 @@ import { MultiProviderRouting } from '@/components/landing/MultiProviderRouting'
 import { ComparisonMatrix } from '@/components/landing/ComparisonMatrix'
 import { CtaSection } from '@/components/landing/CtaSection'
 import { Footer } from '@/components/landing/Footer'
+import { ScrollReveal } from '@/components/landing/ScrollReveal'
 
 export default function LandingPage() {
   return (
@@ -27,43 +28,69 @@ export default function LandingPage() {
         <Hero />
 
         {/* 2. Supported providers trust bar */}
-        <ProviderBar />
+        <ScrollReveal delay={60}>
+          <ProviderBar />
+        </ScrollReveal>
 
         {/* 3. Problems created by production AI */}
-        <ProblemsSection />
+        <ScrollReveal delay={80}>
+          <ProblemsSection />
+        </ScrollReveal>
 
         {/* 4. Signature Before / After Differentiator with 1-line code toggle */}
-        <DifferentiatorSection />
+        <ScrollReveal delay={80}>
+          <DifferentiatorSection />
+        </ScrollReveal>
 
         {/* 5. 6 Core Pillars Feature System */}
-        <FeatureSystem />
+        <ScrollReveal delay={80}>
+          <FeatureSystem />
+        </ScrollReveal>
 
         {/* 6. Realistic AI-GCM Product Console Preview */}
-        <DashboardPreview />
+        <ScrollReveal delay={80} direction="zoom">
+          <DashboardPreview />
+        </ScrollReveal>
 
         {/* 7. Full Technical Architecture Deep Dive */}
-        <ArchitectureDeepDive />
+        <ScrollReveal delay={80}>
+          <ArchitectureDeepDive />
+        </ScrollReveal>
 
         {/* 8. Hot Path (<3ms) vs Async Kafka Plane */}
-        <HotPathVsAsync />
+        <ScrollReveal delay={80}>
+          <HotPathVsAsync />
+        </ScrollReveal>
 
         {/* 9. Dual-Database Data Layer (Postgres, ClickHouse, Redis, Kafka) */}
-        <DataInfrastructure />
+        <ScrollReveal delay={80}>
+          <DataInfrastructure />
+        </ScrollReveal>
 
         {/* 10. Enterprise Security & Encryption at Rest */}
-        <SecuritySection />
+        <ScrollReveal delay={80}>
+          <SecuritySection />
+        </ScrollReveal>
 
         {/* 11. Developer Experience with Code Snippets and Terminal Trace */}
-        <DeveloperExperience />
+        <ScrollReveal delay={80}>
+          <DeveloperExperience />
+        </ScrollReveal>
 
         {/* 12. Multi-Provider Unified Routing */}
-        <MultiProviderRouting />
+        <ScrollReveal delay={80}>
+          <MultiProviderRouting />
+        </ScrollReveal>
 
         {/* 13. Category Differentiation Matrix */}
-        <ComparisonMatrix />
+        <ScrollReveal delay={80}>
+          <ComparisonMatrix />
+        </ScrollReveal>
 
         {/* 14. Final Call to Action */}
-        <CtaSection />
+        <ScrollReveal delay={80} direction="zoom">
+          <CtaSection />
+        </ScrollReveal>
       </main>
 
       {/* Footer */}
