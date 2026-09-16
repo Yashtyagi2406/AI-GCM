@@ -164,6 +164,33 @@ ai-gcm/
 
 ---
 
+## Enterprise Branching Strategy
+
+AI-GCM adheres to an enterprise production Git branching model:
+
+```
+feature/*  fix/*
+   │         │
+   ▼         ▼
+[ develop ] ─────────────► [ staging ] ─────────────► [ release/v1.0.0 ] ─────────────► [ main ] (v1.0.0)
+ (CI & Integration)       (Pre-production)            (Release Candidate)              (Production Release)
+```
+
+| Branch | Classification | Purpose |
+|---|---|---|
+| `main` | Production | Stable, verified production release line |
+| `release/v1.0.0` | Release | Release candidate line for current version |
+| `staging` | Environment | Staging environment mirror |
+| `develop` | Integration | Continuous integration & active dev branch (triggers CI & staging build) |
+| `feature/enterprise-landing-page` | Feature | Dark infrastructure landing page, architecture flows, provider matrix |
+| `feature/dashboard-analytics-alerts` | Feature | Real-time alerts drawer, period filtering, Recharts tooltips |
+| `fix/proxy-kafka-resilience` | Fix | Graceful Go proxy startup when Kafka is warming up |
+| `feature/infra-docker-orchestration` | Feature | Docker Compose multi-service networking, ClickHouse & Kafka configs |
+| `feature/auth-session-management` | Feature | AuthGuard, JWT session state, user profiles |
+| `feature/core-proxy-engine` | Feature | Core reverse proxy, DLP patterns, OPA Rego engine, Key Vault |
+
+---
+
 ## License
 
 MIT
