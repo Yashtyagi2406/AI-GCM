@@ -47,3 +47,7 @@ vendor/
 .vscode/
 .idea/
 *.swp
+
+# pnpm
+.pnpm-store/
+.pnpm-debug.log
