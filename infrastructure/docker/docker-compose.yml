@@ -144,15 +144,13 @@ services:
       VAULT_MASTER_KEY: ${VAULT_MASTER_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
     depends_on: [postgres]
 
-  # ── Web Dashboard (Next.js)
+  # ── Web Dashboard (Next.js) — DEV with HMR
   web:
-    build:
-      context: ../../apps/web
-      dockerfile: Dockerfile
-      args:
-        AUTH_SERVICE_URL: http://auth-service:3002
-        API_GATEWAY_URL: http://api-gateway:3001
-        PROXY_URL: http://proxy:8080
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ../../apps/web:/app
+      - web_node_modules:/app/node_modules
     ports: ["3000:3000"]
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001
@@ -160,6 +158,10 @@ services:
       AUTH_SERVICE_URL: http://auth-service:3002
       API_GATEWAY_URL: http://api-gateway:3001
       PROXY_URL: http://proxy:8080
+      # Polling required on macOS Docker (no inotify events)
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    command: sh -c "corepack enable && corepack prepare pnpm@9.15.4 --activate && pnpm install --no-frozen-lockfile && pnpm dev"
     depends_on: [api-gateway, auth-service]
 
   # ── Analytics Processor (Go) — Phase 2
@@ -203,4 +205,5 @@ volumes:
   postgres_data:
   clickhouse_data:
   report_data:
+  web_node_modules:
 
