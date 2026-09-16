@@ -1,15 +1,24 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Cpu, ArrowRight, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react'
+import { Cpu, ArrowRight, Lock, Mail, AlertCircle, Loader2, ChevronLeft } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
 import { api } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
   const setAuth = useAppStore((s) => s.setAuth)
+  const token = useAppStore((s) => s.token)
+  const user = useAppStore((s) => s.user)
+
+  // If already authenticated, redirect to dashboard
+  useEffect(() => {
+    if (token && user) {
+      router.replace('/overview')
+    }
+  }, [token, user, router])
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -48,7 +57,7 @@ export default function LoginPage() {
         orgName: res.user.org_name || 'Acme Corp',
       })
 
-      router.push('/overview')
+      router.replace('/overview')
     } catch (err: any) {
       setError(err.message || 'Failed to sign in. Please check your credentials.')
     } finally {
@@ -58,6 +67,15 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Back to home */}
+      <Link
+        href="/"
+        className="absolute top-6 left-6 flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors group z-10"
+      >
+        <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+        Back to Home
+      </Link>
+
       {/* Background Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />

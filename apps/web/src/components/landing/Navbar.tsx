@@ -79,7 +79,7 @@ export function Navbar() {
           </Link>
 
           <Link
-            href="/overview"
+            href="/login"
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/25 active:scale-95 transition-all cursor-pointer"
           >
             <span>Start Building</span>
@@ -90,7 +90,7 @@ export function Navbar() {
         {/* Mobile menu toggle */}
         <div className="flex sm:hidden items-center gap-2">
           <Link
-            href="/overview"
+            href="/login"
             className="px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-semibold"
           >
             Launch
@@ -161,7 +161,7 @@ export function Navbar() {
               Sign In to Console
             </Link>
             <Link
-              href="/overview"
+              href="/login"
               className="w-full text-center py-2 rounded-lg bg-violet-600 text-white text-xs font-semibold"
             >
               Start Building

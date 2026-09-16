@@ -79,7 +79,7 @@ export function Hero() {
           {/* CTAs */}
           <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             <SpecularButton
-              href="/overview"
+              href="/login"
               size="md"
               radius={14}
               tint="#7c3aed"
