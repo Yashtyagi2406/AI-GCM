@@ -44,19 +44,19 @@ export function SecuritySection() {
   ]
 
   return (
-    <section id="security" className="py-24 sm:py-32 bg-slate-950/40 relative border-b border-white/[0.08]">
+    <section id="security" className="py-24 sm:py-32 dark:bg-black/30 bg-white/50 relative border-b border-slate-200/80 dark:border-white/[0.08] backdrop-blur-[3px] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-xs font-mono mb-4">
-            <Lock size={13} />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-mono font-bold mb-4">
+            <Lock size={14} />
             <span>ENTERPRISE SECURITY</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-950 dark:text-white leading-tight">
             Govern AI without losing control of your data.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed">
+          <p className="mt-4 text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
             Protect sensitive data, secure credentials, and maintain verifiable compliance across every model invocation.
           </p>
         </div>
@@ -68,26 +68,26 @@ export function SecuritySection() {
             return (
               <div 
                 key={item.title}
-                className="p-6 rounded-2xl border border-white/10 bg-slate-900/60 hover:border-emerald-500/30 transition-all group flex flex-col justify-between"
+                className="p-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 hover:border-emerald-500/30 transition-all group flex flex-col justify-between shadow-sm dark:shadow-none"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                       <Icon size={19} />
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] text-slate-300 border border-white/10">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-white/[0.04] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">
                       {item.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">{item.title}</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-3 border-t border-white/5 flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <div className="mt-6 pt-3 border-t border-slate-200 dark:border-white/5 flex items-center gap-1.5 text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                   <span>Enforced at Proxy Boundary</span>
                 </div>
               </div>

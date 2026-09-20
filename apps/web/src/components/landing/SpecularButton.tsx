@@ -265,9 +265,10 @@ export function SpecularButton({
       const sizeRef = { w: 1, h: 1 }
       const resize = () => {
         if (!btn) return
-        const rect = btn.getBoundingClientRect()
-        const w = rect.width
-        const h = rect.height
+        // Use untransformed layout dimensions (offsetWidth/offsetHeight) so CSS transforms on parents don't shrink the WebGL canvas
+        const w = (btn as HTMLElement).offsetWidth || btn.getBoundingClientRect().width
+        const h = (btn as HTMLElement).offsetHeight || btn.getBoundingClientRect().height
+        if (!w || !h) return
         sizeRef.w = w
         sizeRef.h = h
         renderer.setSize(w + PAD * 2, h + PAD * 2)
@@ -275,9 +276,17 @@ export function SpecularButton({
         program.uniforms.uHalfSize.value = [(w / 2) * dpr, (h / 2) * dpr]
       }
 
-      ro = new ResizeObserver(resize)
+      ro = new ResizeObserver(() => {
+        resize()
+      })
       ro.observe(btn)
       resize()
+
+      window.addEventListener('resize', resize)
+      document.fonts?.ready?.then(resize)
+      const t1 = setTimeout(resize, 100)
+      const t2 = setTimeout(resize, 500)
+      const t3 = setTimeout(resize, 1000)
 
       let pointerAngle: number | null = null
       let proximityT = 0
@@ -347,7 +356,11 @@ export function SpecularButton({
       return () => {
         cancelAnimationFrame(raf)
         if (ro) ro.disconnect()
+        window.removeEventListener('resize', resize)
         window.removeEventListener('pointermove', onPointerMove)
+        clearTimeout(t1)
+        clearTimeout(t2)
+        clearTimeout(t3)
         if (gl && gl.canvas && gl.canvas.parentNode === fx) {
           fx.removeChild(gl.canvas)
         }
