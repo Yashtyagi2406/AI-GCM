@@ -66,19 +66,19 @@ print(response.choices[0].message.content)`
   }
 
   return (
-    <section className="py-24 sm:py-32 bg-[#030712] relative border-b border-white/[0.08]">
+    <section className="py-24 sm:py-32 dark:bg-black/30 bg-white/50 relative border-b border-slate-200/80 dark:border-white/[0.08] backdrop-blur-[3px] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-violet-500/25 bg-violet-500/10 text-violet-400 text-xs font-mono mb-4">
-            <Terminal size={13} />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300 text-xs font-mono font-bold mb-4">
+            <Terminal size={14} />
             <span>DEVELOPER EXPERIENCE</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-950 dark:text-white leading-tight">
             Drop it into your stack. <br />Keep your code.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed">
+          <p className="mt-4 text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
             Configure once via environment variables. Your teams continue using official SDKs with zero breaking changes or proprietary lock-in.
           </p>
         </div>
@@ -87,16 +87,16 @@ print(response.choices[0].message.content)`
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
           {/* Left: Code Editor (7 cols) */}
-          <div className="lg:col-span-7 rounded-2xl border border-white/10 bg-slate-950/90 shadow-2xl overflow-hidden flex flex-col justify-between">
+          <div className="lg:col-span-7 rounded-2xl border border-slate-800 dark:border-white/10 bg-slate-950 dark:bg-slate-950/90 shadow-xl dark:shadow-2xl overflow-hidden flex flex-col justify-between">
             <div>
               {/* Tabs Bar */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08] bg-white/[0.02]">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 dark:border-white/[0.08] bg-slate-900/90 dark:bg-white/[0.02]">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setActiveTab('node')}
                     className={`px-3 py-1 rounded text-xs font-mono transition-all ${
                       activeTab === 'node' 
-                        ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40' 
+                        ? 'bg-violet-600/40 text-violet-200 border border-violet-500/50' 
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -106,7 +106,7 @@ print(response.choices[0].message.content)`
                     onClick={() => setActiveTab('python')}
                     className={`px-3 py-1 rounded text-xs font-mono transition-all ${
                       activeTab === 'python' 
-                        ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40' 
+                        ? 'bg-violet-600/40 text-violet-200 border border-violet-500/50' 
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -116,7 +116,7 @@ print(response.choices[0].message.content)`
                     onClick={() => setActiveTab('cli')}
                     className={`px-3 py-1 rounded text-xs font-mono transition-all ${
                       activeTab === 'cli' 
-                        ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40' 
+                        ? 'bg-violet-600/40 text-violet-200 border border-violet-500/50' 
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -139,93 +139,93 @@ print(response.choices[0].message.content)`
               </div>
             </div>
 
-            <div className="p-4 border-t border-white/[0.06] bg-black/40 text-xs font-mono text-slate-400 flex items-center justify-between">
+            <div className="p-4 border-t border-slate-800 dark:border-white/[0.06] bg-black/60 text-xs font-mono text-slate-400 flex items-center justify-between">
               <span>Standard OpenAI &amp; Anthropic wire protocol</span>
               <span className="text-emerald-400 font-medium">100% API Compatibility</span>
             </div>
           </div>
 
           {/* Right: Simulated Proxy Trace Terminal (5 cols) */}
-          <div className="lg:col-span-5 rounded-2xl border border-violet-500/30 bg-[#060a12] p-5 font-mono text-xs shadow-2xl flex flex-col justify-between">
+          <div className="lg:col-span-5 rounded-2xl border border-slate-200 dark:border-violet-500/30 bg-slate-50 dark:bg-[#060a12] p-5 font-mono text-xs shadow-xl dark:shadow-2xl flex flex-col justify-between">
             <div>
               {/* Terminal Header */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 text-slate-400">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
                   </div>
-                  <span className="text-[11px] text-white font-bold">ai-gcm-proxy.log</span>
+                  <span className="text-[11px] text-slate-900 dark:text-white font-bold">ai-gcm-proxy.log</span>
                 </div>
-                <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-semibold">
                   STREAMING
                 </span>
               </div>
 
               {/* Execution Steps */}
               <div className="space-y-3 text-[11px]">
-                <div className="flex items-start gap-2 text-slate-300">
-                  <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                  <CheckCircle2 size={13} className="text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-emerald-400 font-bold">Request accepted</span>
-                    <p className="text-[10px] text-slate-500">POST /v1/chat/completions (model: claude-3-5-sonnet)</p>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">Request accepted</span>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-500">POST /v1/chat/completions (model: claude-3-5-sonnet)</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 text-slate-300">
-                  <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                  <CheckCircle2 size={13} className="text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-emerald-400 font-bold">API Key verified</span>
-                    <p className="text-[10px] text-slate-500">Org: Acme Corp · Team: Engineering · Latency: 0.3ms</p>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">API Key verified</span>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-500">Org: Acme Corp · Team: Engineering · Latency: 0.3ms</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 text-slate-300">
-                  <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                  <CheckCircle2 size={13} className="text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-emerald-400 font-bold">In-memory DLP passed</span>
-                    <p className="text-[10px] text-slate-500">Scanned 1,840 bytes · 0 PII patterns matched (0.5ms)</p>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">In-memory DLP passed</span>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-500">Scanned 1,840 bytes · 0 PII patterns matched (0.5ms)</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 text-slate-300">
-                  <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                  <CheckCircle2 size={13} className="text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-emerald-400 font-bold">OPA Policy evaluated</span>
-                    <p className="text-[10px] text-slate-500">Rule production-ai: ALLOW (0.4ms)</p>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">OPA Policy evaluated</span>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-500">Rule production-ai: ALLOW (0.4ms)</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 text-slate-300">
-                  <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                  <CheckCircle2 size={13} className="text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-emerald-400 font-bold">Budget verified</span>
-                    <p className="text-[10px] text-slate-500">Team balance: $2,550 remaining of $15,000 (0.2ms)</p>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">Budget verified</span>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-500">Team balance: $2,550 remaining of $15,000 (0.2ms)</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 text-slate-300">
-                  <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                  <CheckCircle2 size={13} className="text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-emerald-400 font-bold">Provider request forwarded</span>
-                    <p className="text-[10px] text-slate-500">AES-256 Key decrypted &amp; injected into upstream headers</p>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">Provider request forwarded</span>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-500">AES-256 Key decrypted &amp; injected into upstream headers</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 text-slate-300">
-                  <CheckCircle2 size={13} className="text-emerald-400 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                  <CheckCircle2 size={13} className="text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-emerald-400 font-bold">Usage asynchronously recorded</span>
-                    <p className="text-[10px] text-slate-500">Emitted event to Kafka: usage-events (0.0ms delay to client)</p>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">Usage asynchronously recorded</span>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-500">Emitted event to Kafka: usage-events (0.0ms delay to client)</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+            <div className="mt-4 pt-3 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
               <span>Overall Proxy Overhead:</span>
-              <span className="text-violet-300 font-bold">1.8 ms total</span>
+              <span className="text-violet-700 dark:text-violet-300 font-bold">1.8 ms total</span>
             </div>
           </div>
 

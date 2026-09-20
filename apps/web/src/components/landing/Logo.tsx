@@ -7,7 +7,7 @@ export function Logo({ size = 28, showText = true, className = '' }: { size?: nu
     <div className={`flex items-center gap-2.5 ${className}`}>
       {/* Minimal geometric infrastructure mark */}
       <div 
-        className="relative flex items-center justify-center rounded-lg bg-slate-900 border border-white/15 p-1.5 shadow-md shadow-violet-500/10 group-hover:border-violet-500/40 transition-colors"
+        className="relative flex items-center justify-center rounded-lg bg-slate-900 border border-slate-700/80 dark:border-white/15 p-1.5 shadow-md shadow-violet-500/10 group-hover:border-violet-500/40 transition-colors"
         style={{ width: size, height: size }}
       >
         <svg 
@@ -23,7 +23,7 @@ export function Logo({ size = 28, showText = true, className = '' }: { size?: nu
             strokeWidth="1.75" 
             strokeLinecap="round" 
             strokeLinejoin="round" 
-            className="opacity-70"
+            className="opacity-90"
           />
           {/* Inner Central Routing Nexus Diamond */}
           <path 
@@ -49,14 +49,14 @@ export function Logo({ size = 28, showText = true, className = '' }: { size?: nu
       {showText && (
         <div className="flex flex-col leading-none">
           <div className="flex items-center gap-1.5">
-            <span className="font-extrabold tracking-tight text-white font-mono text-base drop-shadow-sm">
-              AI<span className="text-violet-400">-</span>GCM
+            <span className="font-extrabold tracking-tight text-slate-950 dark:text-white font-mono text-base">
+              AI<span className="text-violet-600 dark:text-violet-400">-</span>GCM
             </span>
-            <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-violet-500/15 border border-violet-500/30 text-violet-300 font-mono font-semibold">
+            <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-violet-100 dark:bg-violet-500/20 border border-violet-300 dark:border-violet-500/40 text-violet-800 dark:text-violet-300 font-mono font-bold">
               v1.0
             </span>
           </div>
-          <span className="text-[10px] text-slate-300 font-medium tracking-wide">
+          <span className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold tracking-wide mt-0.5">
             Control Plane for Production AI
           </span>
         </div>

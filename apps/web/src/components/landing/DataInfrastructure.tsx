@@ -48,19 +48,19 @@ export function DataInfrastructure() {
   ]
 
   return (
-    <section className="py-24 sm:py-32 bg-[#030712] relative border-b border-white/[0.08]">
+    <section className="py-24 sm:py-32 dark:bg-black/30 bg-white/50 relative border-b border-slate-200/80 dark:border-white/[0.08] backdrop-blur-[3px] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-violet-500/25 bg-violet-500/10 text-violet-400 text-xs font-mono mb-4">
-            <Database size={13} />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md border border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300 text-xs font-mono font-bold mb-4">
+            <Database size={14} />
             <span>STORAGE &amp; EVENT BACKBONE</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-950 dark:text-white leading-tight">
             Dual-database architecture. <br />Engineered for massive scale.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-400 leading-relaxed">
+          <p className="mt-4 text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
             AI-GCM pairs relational OLTP consistency for billing limits with columnar OLAP power for high-cardinality time-series analytics.
           </p>
         </div>
@@ -72,11 +72,11 @@ export function DataInfrastructure() {
             return (
               <div 
                 key={s.name}
-                className="p-6 rounded-2xl border border-white/10 bg-slate-950/60 hover:border-white/20 transition-all flex flex-col justify-between group"
+                className="p-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-950/60 hover:border-slate-300 dark:hover:border-white/20 transition-all flex flex-col justify-between group shadow-sm dark:shadow-none"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-xs">
                       <Icon size={19} className={s.iconColor} />
                     </div>
                     <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${s.badgeColor}`}>
@@ -84,17 +84,17 @@ export function DataInfrastructure() {
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-bold text-white mb-1 font-mono">{s.name}</h3>
-                  <p className="text-xs font-semibold text-slate-300 mb-2">{s.role}</p>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 font-mono">{s.name}</h3>
+                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">{s.role}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                     {s.description}
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-white/5 space-y-1.5 font-mono text-[11px]">
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/5 space-y-1.5 font-mono text-[11px]">
                   {s.specs.map((spec) => (
-                    <div key={spec} className="flex items-center gap-2 text-slate-400">
-                      <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                    <div key={spec} className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                      <CheckCircle2 size={12} className="text-emerald-500 dark:text-emerald-400 shrink-0" />
                       <span>{spec}</span>
                     </div>
                   ))}

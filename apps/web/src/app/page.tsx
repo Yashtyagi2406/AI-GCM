@@ -15,10 +15,13 @@ import { ComparisonMatrix } from '@/components/landing/ComparisonMatrix'
 import { CtaSection } from '@/components/landing/CtaSection'
 import { Footer } from '@/components/landing/Footer'
 import { ScrollReveal } from '@/components/landing/ScrollReveal'
+import { VideoBackground } from '@/components/landing/VideoBackground'
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-100 selection:bg-violet-500/30 selection:text-white">
+    <div className="min-h-screen text-slate-900 dark:text-slate-100 selection:bg-violet-500/30 selection:text-white">
+      {/* Fixed video wallpaper — visible behind every section */}
+      <VideoBackground />
       {/* Top sticky blur navbar */}
       <Navbar />
 
@@ -88,7 +91,7 @@ export default function LandingPage() {
         </ScrollReveal>
 
         {/* 14. Final Call to Action */}
-        <ScrollReveal delay={80} direction="zoom">
+        <ScrollReveal delay={80} direction="up">
           <CtaSection />
         </ScrollReveal>
       </main>
